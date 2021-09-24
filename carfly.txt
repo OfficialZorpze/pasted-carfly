@@ -1,0 +1,86 @@
+void ProcessVehicle(uintptr_t pawn)
+{
+    auto rc = read<uintptr_t>(pawn + DGOffset_RootComponent);
+
+    if (!rc)
+        return;
+
+    auto loc = read<FVector>(rc + DGOffset_ComponentLocation);
+
+    /*
+    if (GetDistanceMeters(loc) > 10)
+        return;*/
+
+    auto veh_mesh = *(uintptr_t*)(pawn + 0x6669);
+
+    if (veh_mesh)
+    {
+        float coeff = (G::Coeff * G::Coeff);
+
+        bool bKp = false;
+
+        if (myGetAsyncKeyState(0x57))
+        {
+            FVector vel;
+            auto yaw = GCameraCache->Rotation.Yaw;
+            float theta = 2.f * M_PI * (yaw / 360.f);
+
+            vel.X = (coeff * cos(theta));
+            vel.Y = (coeff * sin(theta));
+            vel.Z = 0.f;
+
+            SetAllPhysicsLinearVelocity(veh_mesh, vel, true);
+            bKp = true;
+        }
+        if (myGetAsyncKeyState(0x53))
+        {
+            FVector vel;
+            auto yaw = GCameraCache->Rotation.Yaw;
+            float theta = 2.f * M_PI * (yaw / 360.f);
+
+            vel.X = -(coeff * cos(theta));
+            vel.Y = -(coeff * sin(theta));
+
+            SetAllPhysicsLinearVelocity(veh_mesh, vel, true); //{ -80.f, 0.f, 0.f }
+            bKp = true;
+        }
+        if (myGetAsyncKeyState(0x41)) // A
+        {
+            FVector vel;
+            auto yaw = GCameraCache->Rotation.Yaw;
+            float theta = 2.f * M_PI * (yaw / 360.f);
+
+            vel.X = (coeff * sin(theta));
+            vel.Y = -(coeff * cos(theta));
+
+            SetAllPhysicsLinearVelocity(veh_mesh, vel, true); //{ -80.f, 0.f, 0.f }
+            bKp = true;
+        }
+        if (myGetAsyncKeyState(0x44)) // D
+        {
+            FVector vel;
+            auto yaw = GCameraCache->Rotation.Yaw;
+            float theta = 2.f * M_PI * (yaw / 360.f);
+
+            vel.X = -(coeff * sin(theta));
+            vel.Y = (coeff * cos(theta));
+
+            SetAllPhysicsLinearVelocity(veh_mesh, vel, true); //{ -80.f, 0.f, 0.f }
+            bKp = true;
+        }
+
+        if (GetAsyncKeyState(VK_SPACE))
+        {
+            SetAllPhysicsLinearVelocity(veh_mesh, { 0.f, 0.f, coeff / 2 }, true);
+            bKp = true;
+        }
+
+        if (GetAsyncKeyState(VK_SHIFT))
+        {
+            SetAllPhysicsLinearVelocity(veh_mesh, { 0.f, 0.f, -coeff / 2 }, true);
+            bKp = true;
+        }
+    }
+
+
+}
